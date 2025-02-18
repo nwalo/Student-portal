@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import NoData from "./no-data";
 import { TablePagination } from "./pagination";
@@ -19,15 +19,15 @@ interface TableRowData {
 interface TableProp {
   tableHead: string[];
   tableBody: TableRowData[];
-  setPage?: Dispatch<SetStateAction<number>>;
   emptyState?: React.ReactNode;
   handleChecked?: Dispatch<SetStateAction<string[]>>;
+  reset?: boolean;
 }
 
 export function CustomTable({
   tableHead,
   tableBody,
-  //   setPage,
+  reset,
   emptyState,
 }: TableProp) {
   const router = useRouter();
@@ -35,6 +35,10 @@ export function CustomTable({
   const perPage = 10;
   const start = (page - 1) * perPage;
   const end = page * perPage;
+
+  useEffect(() => {
+    setPage(1);
+  }, [reset]);
 
   const tableBodyData = tableBody.map((obj) => {
     return Object.fromEntries(

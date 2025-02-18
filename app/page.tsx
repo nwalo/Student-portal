@@ -37,13 +37,13 @@ export default function Home() {
   const handleSearch = (value: string) => {
     setSearch(value);
 
-    const students = studentsState.data.filter(
+    const filtererdStudents = studentsState.data.filter(
       (e) =>
         e?.name?.toLowerCase().includes(value.toLowerCase()) ||
         e?.email?.toLowerCase().includes(value.toLowerCase())
     );
 
-    setStudents(students); // Ensure this line executes
+    setStudents(filtererdStudents); // Ensure this line executes
   };
 
   return (
@@ -64,6 +64,7 @@ export default function Home() {
 
       <CustomTable
         tableHead={tableHead}
+        reset={search === "" ? false : true}
         tableBody={students.map((student) => ({
           id: 1,
           Name: student?.name,
