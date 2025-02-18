@@ -1,123 +1,205 @@
 "use client";
 
-import type React from "react";
-
-import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { useParams, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-
-// Mock function to fetch student data
-const fetchStudentData = async (id: string) => {
-  // In a real application, this would be an API call
-  return {
-    id: Number.parseInt(id),
-    name: "John Doe",
-    email: "john@example.com",
-    dateOfBirth: "1995-05-15",
-    address: "123 Main St, Anytown, USA",
-    phoneNumber: "+1 (555) 123-4567",
-    major: "Computer Science",
-  };
-};
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { addStudentSchema } from "@/constants/schemas";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useDispatch } from "react-redux";
+import { addStudent, editStudent } from "@/redux/slices/studentSlice";
+import { v4 as uuidv4 } from "uuid";
 
 export default function StudentForm() {
   const { id } = useParams();
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    dateOfBirth: "",
-    address: "",
-    phoneNumber: "",
-    major: "",
+  const dispatch = useDispatch();
+
+  const studentsState = useSelector(
+    (state: RootState) => state?.persisted.students
+  );
+
+  const student = studentsState.data.find((student) => student?.id === id);
+
+  const form = useForm<z.infer<typeof addStudentSchema>>({
+    resolver: zodResolver(addStudentSchema),
+    defaultValues: {
+      name: student?.name ?? "",
+      email: student?.email ?? "",
+      dateOfBirth: student?.dateOfBirth
+        ? new Date(student?.dateOfBirth)
+        : undefined,
+      address: student?.address ?? "",
+      phoneNumber: student?.phoneNumber ?? "",
+      major: student?.major ?? "",
+    },
   });
 
-  useEffect(() => {
-    fetchStudentData(id as string).then(setFormData);
-  }, [id]);
+  const onSubmit = (data: z.infer<typeof addStudentSchema>) => {
+    const uid = uuidv4();
+    const payload = {
+      name: data?.name,
+      email: data?.email,
+      dateOfBirth: data?.dateOfBirth
+        ? format(data?.dateOfBirth, "dd-MM-yyy")
+        : "",
+      address: data?.address,
+      phoneNumber: data?.phoneNumber,
+      major: data?.major,
+      enrollmentDate: "10-10-2020",
+      level: "100",
+      status: "pending",
+      gpa: (Math.random() * 5).toFixed(2),
+      creditsCompleted: 90,
+      id: uid,
+    };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission (update student data)
-    console.log("Updated student data:", formData);
-    // After successful update, redirect to student details page
-    router.push(`/students/${id}`);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (id) {
+      dispatch(editStudent(payload));
+    } else {
+      dispatch(addStudent(payload));
+      form.reset();
+    }
   };
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Edit Student</h1>
-      <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-        <div>
-          <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
+      <h1 className="text-3xl font-bold">{id ? "Edit" : "Add"} Student</h1>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4 max-w-md"
+        >
+          <FormField
+            control={form.control}
             name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
+            render={({ field }) => (
+              <FormItem>
+                <Label htmlFor="name">Name</Label>
+                <FormControl>
+                  <Input {...field} id="name" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
+          <FormField
+            control={form.control}
             name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
+            render={({ field }) => (
+              <FormItem>
+                <Label htmlFor="email">Email</Label>
+                <FormControl>
+                  <Input {...field} id="email" type="email" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div>
-          <Label htmlFor="dateOfBirth">Date of Birth</Label>
-          <Input
-            id="dateOfBirth"
+          <FormField
+            control={form.control}
             name="dateOfBirth"
-            type="date"
-            value={formData.dateOfBirth}
-            onChange={handleChange}
-            required
+            render={({ field }) => (
+              <FormItem>
+                <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                <FormControl>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={`w-full pl-3 text-left font-normal ${
+                            !field.value && "text-muted-foreground"
+                          }`}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={
+                          field.value ? new Date(field.value) : undefined
+                        }
+                        onSelect={(date) =>
+                          field.onChange(date?.toISOString() || "")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div>
-          <Label htmlFor="address">Address</Label>
-          <Input
-            id="address"
+          <FormField
+            control={form.control}
             name="address"
-            value={formData.address}
-            onChange={handleChange}
-            required
+            render={({ field }) => (
+              <FormItem>
+                <Label htmlFor="address">Address</Label>
+                <FormControl>
+                  <Input {...field} id="address" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div>
-          <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input
-            id="phoneNumber"
+          <FormField
+            control={form.control}
             name="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-            required
+            render={({ field }) => (
+              <FormItem>
+                <Label htmlFor="phoneNumber">Phone Number</Label>
+                <FormControl>
+                  <Input {...field} id="phoneNumber" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div>
-          <Label htmlFor="major">Major</Label>
-          <Input
-            id="major"
+          <FormField
+            control={form.control}
             name="major"
-            value={formData.major}
-            onChange={handleChange}
-            required
+            render={({ field }) => (
+              <FormItem>
+                <Label htmlFor="major">Major</Label>
+                <FormControl>
+                  <Input {...field} id="major" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <Button type="submit">Update Student</Button>
-      </form>
+          <Button type="submit">{id ? "Update" : "Create"} Student</Button>
+        </form>
+      </Form>
     </div>
   );
 }

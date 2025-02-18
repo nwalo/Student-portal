@@ -5,6 +5,8 @@ import "./globals.css";
 import Sidebar from "@/components/custom/sidebar";
 import Topbar from "@/components/custom/topbar";
 import { SidebarProvider } from "@/contexts/SidebarContext";
+import ReduxProvider from "./redux-provider";
+import { ToasterProvider } from "./toast-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,17 +21,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
       <body className={inter.className}>
-        <SidebarProvider>
-          <div className="flex flex-col h-screen bg-gray-100">
-            <Topbar />
-            <div className="flex flex-1 overflow-hidden">
-              <Sidebar />
-              <main className="flex-1 overflow-y-auto p-8">{children}</main>
+        <ReduxProvider>
+          <SidebarProvider>
+            <div className="flex flex-col h-screen bg-gray-100">
+              <Topbar />
+              <div className="flex flex-1 overflow-hidden">
+                <Sidebar />
+                <main className="flex-1 overflow-y-auto p-8">{children}</main>
+              </div>
             </div>
-          </div>
-        </SidebarProvider>
+          </SidebarProvider>
+        </ReduxProvider>
+
+        <ToasterProvider />
       </body>
     </html>
   );

@@ -70,3 +70,16 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Customize Sonner toast colors */
+.toast-success {
+  background-color: #4caf50; /* Green for success */
+}
+
+.toast-error {
+  background-color: #f44336; /* Red for error */
+}
+
+.toast-warning {
+  background-color: #ff9800; /* Orange for warning */
+}
