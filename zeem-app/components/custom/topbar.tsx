@@ -17,7 +17,7 @@ export default function Topbar() {
 
   return (
     <header className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center">
             <Button
@@ -34,10 +34,10 @@ export default function Topbar() {
             </Button>
             <div className="flex-shrink-0">
               <Image
-                src="/logo-placeholder.svg"
+                src="/images/zeem.webp"
                 alt="Logo"
-                width={40}
-                height={40}
+                width={100}
+                height={100}
               />
             </div>
           </div>
@@ -46,7 +46,7 @@ export default function Topbar() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center space-x-3">
                   <Avatar>
-                    <AvatarImage src="/avatar-placeholder.png" alt="User" />
+                    <AvatarImage alt="User" />
                     <AvatarFallback>AD</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start">

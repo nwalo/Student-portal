@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, UserPlus, Upload, FileSpreadsheet } from "lucide-react";
+import { Users, UserPlus, Upload, FileSpreadsheet, LogOut } from "lucide-react";
 import { useSidebar } from "@/contexts/SidebarContext";
 
 const navItems = [
   { name: "Students", href: "/", icon: Users },
   { name: "Add Student", href: "/add-student", icon: UserPlus },
   { name: "Bulk Upload", href: "/bulk-upload", icon: Upload },
-  { name: "Applications", href: "/applications", icon: FileSpreadsheet },
+  { name: "Black List", href: "/black-list", icon: FileSpreadsheet },
 ];
 
 export default function Sidebar() {
@@ -22,20 +22,29 @@ export default function Sidebar() {
         isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       }`}
     >
-      <nav className="space-y-2 my-4">
-        {navItems.map((item) => (
-          <Link
-            key={item.name}
-            href={item.href}
-            className={`flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700 transition-colors ${
-              pathname === item.href ? "bg-gray-700" : ""
-            }`}
-          >
-            <item.icon className="h-5 w-5" />
-            <span>{item.name}</span>
-          </Link>
-        ))}
-      </nav>
+      <div className="flex flex-col justify-between h-[85%]">
+        <nav className="space-y-2 my-4">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={`flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700 transition-colors ${
+                pathname === item.href ? "bg-gray-700" : ""
+              }`}
+            >
+              <item.icon className="h-5 w-5" />
+              <span>{item.name}</span>
+            </Link>
+          ))}
+        </nav>
+
+        <div
+          className={`flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700 transition-colors`}
+        >
+          <LogOut className="h-5 w-5" />
+          <span>Logout</span>
+        </div>
+      </div>
     </aside>
   );
 }
