@@ -8,12 +8,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Dispatch, SetStateAction, useState } from "react";
-// import { TablePagination } from "../table-pagination";
-// import { Pagination } from "@/types/response";
 import { useRouter } from "next/navigation";
 import NoData from "./no-data";
 import { TablePagination } from "./pagination";
-// import NoData from "../no-data";
 
 interface TableRowData {
   [key: string]: string | number | boolean | React.ReactNode;

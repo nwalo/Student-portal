@@ -17,3 +17,13 @@ export interface IStudent {
 export interface IStudents {
   data: IStudent[];
 }
+
+export interface StudentUploadProp {
+  name: string;
+  email: string;
+  dateOfBirth: string;
+  address: string;
+  phoneNumber: string;
+  major: string;
+  level: string;
+}

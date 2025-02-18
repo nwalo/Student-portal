@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IStudent, IStudents } from "@/interfaces/students";
-// import { students } from "@/data/students";
 import { toast } from "sonner";
 import { getStudents } from "@/data/students";
 

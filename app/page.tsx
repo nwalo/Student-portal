@@ -44,7 +44,6 @@ export default function Home() {
     );
 
     setStudents(students); // Ensure this line executes
-    console.log(value, students);
   };
 
   return (

@@ -4,6 +4,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const ErrorPage = ({ error, reset }: { error: Error; reset: () => void }) => {
   const router = useRouter();
@@ -11,6 +12,7 @@ const ErrorPage = ({ error, reset }: { error: Error; reset: () => void }) => {
   useEffect(() => {
     // Optionally log the error to an error tracking service (e.g., Sentry)
     console.error("An error occurred:", error);
+    toast.error("An error occurred:" + String(error));
   }, [error]);
 
   return (

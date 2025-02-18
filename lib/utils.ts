@@ -6,11 +6,13 @@ import { toast } from "sonner";
 import DOMPurify from "dompurify";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { StudentUploadProp } from "@/interfaces/students";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Sanitize data to improve security and prevent injection of bad data.
 const sanitize = (dirty: string): string => {
   return DOMPurify.sanitize(dirty);
 };
@@ -20,26 +22,17 @@ function checkDateFormat(dateStr: string) {
   return pattern.test(dateStr);
 }
 
-export interface StudentProp {
-  name: string;
-  email: string;
-  dateOfBirth: string;
-  address: string;
-  phoneNumber: string;
-  major: string;
-  level: string;
-}
-
-const handleCSVFile = (file: any): Promise<StudentProp[]> => {
+// Handle CSV file
+const handleCSVFile = (file: any): Promise<StudentUploadProp[]> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       if (event.target) {
         const fileContents = event.target.result as string;
-        Papa.parse<StudentProp>(fileContents, {
+        Papa.parse<StudentUploadProp>(fileContents, {
           header: true,
           skipEmptyLines: true,
-          complete: (results: ParseResult<StudentProp>) => {
+          complete: (results: ParseResult<StudentUploadProp>) => {
             resolve(results.data);
           },
           error: (error: any) => {
@@ -52,7 +45,7 @@ const handleCSVFile = (file: any): Promise<StudentProp[]> => {
   });
 };
 
-const handleExcelFile = (file: any): Promise<StudentProp[]> => {
+const handleExcelFile = (file: any): Promise<StudentUploadProp[]> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -71,7 +64,7 @@ const handleExcelFile = (file: any): Promise<StudentProp[]> => {
 
       if (!formatCheck) return resolve([]);
 
-      const jsonData: StudentProp[] = XLSX.utils
+      const jsonData: StudentUploadProp[] = XLSX.utils
         .sheet_to_json<any[]>(sheet, { header: 1 })
         .slice(1) // Skip header row
         .map((row) => ({
@@ -90,6 +83,7 @@ const handleExcelFile = (file: any): Promise<StudentProp[]> => {
   });
 };
 
+// Handle bulk upload,
 export const handleBulkUpload = async (file: any) => {
   if (!file) {
     toast.error("File not found");
@@ -98,7 +92,7 @@ export const handleBulkUpload = async (file: any) => {
   let output: any[] = [];
 
   const fileExtension = file?.name.split(".").pop()?.toLowerCase();
-
+  // Get extension and handle the extraction using the right extension.
   if (fileExtension === "csv") {
     output = await handleCSVFile(file);
   } else if (fileExtension === "xlsx" || fileExtension === "xls") {
@@ -107,7 +101,7 @@ export const handleBulkUpload = async (file: any) => {
     toast.error("Unsupported file format");
   }
 
-  const extractedData: StudentProp[] = output.filter(
+  const extractedData: StudentUploadProp[] = output.filter(
     (e) =>
       e["name"] &&
       e["email"] &&
@@ -121,6 +115,7 @@ export const handleBulkUpload = async (file: any) => {
   return extractedData;
 };
 
+// Downaload report for in pdf
 export const handleGeneratePDF = async (printRef: any, name: string) => {
   if (printRef.current) {
     const pdf = new jsPDF("portrait", "mm", "a4");
